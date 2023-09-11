@@ -30,27 +30,40 @@ if __name__ == "__main__":
 	dest_ip = '10.32.143.14'
 	split_src_ip = source_ip.split('.')
 	split_dest_ip = dest_ip.split('.')
-	
-	# Ethernet header
-	eth_header = pack('!6B6BH', dst_mac[0], dst_mac[1], dst_mac[2], dst_mac[3], dst_mac[4], dst_mac[5], 
-		src_mac[0], src_mac[1], src_mac[2], src_mac[3], src_mac[4], src_mac[5], 0x0800)
-	
+ 
+	data = "Hello, World!"
+	data_size = len(data.encode('utf-8'))
+	data_header = [hex(ord(c)) for c in data]
+ 
+ 	# udp header fields
+	# source port, destination port, length, checksum 
+	## source port = 49156
+    ## destination port = 49157
+    ## length =  256 bytes
+    
+    
+	udp_header = pack('!HHHH', hex(49156), hex(49157), hex(256), 0x00) + data_header
 	ip_header = pack(0x45,0x00, total_length, ip_id, flags, frag_offset, ttl, protocol, header_checksum,
 		  hex(split_src_ip[0]), hex(split_src_ip[1]), hex(split_src_ip[2]), hex(split_src_ip[3]), 
 		  hex(split_dest_ip[0]), hex(split_dest_ip[1]), hex(split_dest_ip[2]), hex(split_dest_ip[3]))		# or socket.gethostbyname('www.google.com')
 	 
 	# ip header fields
+ 
+	# Ethernet header
+	eth_header = pack('!6B6BH', dst_mac[0], dst_mac[1], dst_mac[2], dst_mac[3], dst_mac[4], dst_mac[5], 
+		src_mac[0], src_mac[1], src_mac[2], src_mac[3], src_mac[4], src_mac[5], 0x0800)
 	
 	# the ! in the pack format string means network order
 	
 	# build the final ip header (with checksum)
 	 
-	# udp header fields
-	 
+	
+ 
+   
 	# the ! in the pack format string means network order
 	  
 	# final full packet - syn packets dont have any data
-	packet = eth_header
+	packet = eth_header + udp_header + data_header
 	r = sendeth(packet, "eth0")
 	
 	print("Sent %d bytes" % r)
